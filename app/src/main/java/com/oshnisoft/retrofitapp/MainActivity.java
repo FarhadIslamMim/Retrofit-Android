@@ -15,7 +15,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity {
 Call<OurMainDataClass> call;
-List<ObjectData> list;
+Call<ObjectDataById> callId;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,29 +29,56 @@ List<ObjectData> list;
                               .build();
 
           OurRetrofitClient ourRetrofitClient=retrofit.create(OurRetrofitClient.class);
-        call=ourRetrofitClient.getData("LRRfTKsirytpYA3nwgL96GymKKdFbzSQFCEhLnZraS8np0NVVQHoAHAbhfSx");
-   call.enqueue(new Callback<OurMainDataClass>() {
-       @Override
-       public void onResponse(Call<OurMainDataClass> call, Response<OurMainDataClass> response) {
+        callId=ourRetrofitClient.getData(1,"LRRfTKsirytpYA3nwgL96GymKKdFbzSQFCEhLnZraS8np0NVVQHoAHAbhfSx");
 
-           if(response.isSuccessful()){
-           list=response.body().getData();
-           for(ObjectData objectData:list ){
-               Log.d("id", String.valueOf(objectData.getId()));
-               Log.d("name", String.valueOf(objectData.getName()));
-               Log.d("resource", String.valueOf(objectData.getResource()));
-               Log.d("updated_at", String.valueOf(objectData.getUpdated_at()));
-           }
-           } else {
-               Log.d("response","fail");
-           }
-       }
 
-       @Override
-       public void onFailure(Call<OurMainDataClass> call, Throwable t) {
+        callId.enqueue(new Callback<ObjectDataById>() {
+            @Override
+            public void onResponse(Call<ObjectDataById> call, Response<ObjectDataById> response) {
 
-           Log.d("response","fail");
-       }
-   });
+                if(response.isSuccessful()){
+                    ObjectData objectData=response.body().getData();
+
+                        Log.d("id", String.valueOf(objectData.getId()));
+                        Log.d("name", String.valueOf(objectData.getName()));
+                        Log.d("resource", String.valueOf(objectData.getResource()));
+                        Log.d("updated_at", String.valueOf(objectData.getUpdated_at()));
+
+                } else {
+                    Log.d("response","fail");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ObjectDataById> call, Throwable t) {
+
+                Log.d("response","fail");
+            }
+        });
+
+
+//        call.enqueue(new Callback<OurMainDataClass>() {
+//       @Override
+//       public void onResponse(Call<OurMainDataClass> call, Response<OurMainDataClass> response) {
+//
+//           if(response.isSuccessful()){
+//           list=response.body().getData();
+//           for(ObjectData objectData:list ){
+//               Log.d("id", String.valueOf(objectData.getId()));
+//               Log.d("name", String.valueOf(objectData.getName()));
+//               Log.d("resource", String.valueOf(objectData.getResource()));
+//               Log.d("updated_at", String.valueOf(objectData.getUpdated_at()));
+//           }
+//           } else {
+//               Log.d("response","fail");
+//           }
+//       }
+//
+//       @Override
+//       public void onFailure(Call<OurMainDataClass> call, Throwable t) {
+//
+//           Log.d("response","fail");
+//       }
+//   });
     }
 }
