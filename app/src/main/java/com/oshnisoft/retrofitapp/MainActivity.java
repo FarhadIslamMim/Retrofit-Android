@@ -5,6 +5,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.oshnisoft.retrofitapp.cricket.ArrayModelClass;
+import com.oshnisoft.retrofitapp.cricket.ObjectModelClass;
+import com.oshnisoft.retrofitapp.cricket.PositionClass;
+import com.oshnisoft.retrofitapp.cricket.TeamClass;
+
 import java.util.List;
 
 import retrofit2.Call;
@@ -15,7 +20,10 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity {
 Call<OurMainDataClass> call;
+
+OurRetrofitClient ourRetrofitClient;
 Call<ObjectDataById> callId;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,33 +36,77 @@ Call<ObjectDataById> callId;
                               .addConverterFactory(GsonConverterFactory.create())
                               .build();
 
-          OurRetrofitClient ourRetrofitClient=retrofit.create(OurRetrofitClient.class);
-        callId=ourRetrofitClient.getData(1,"LRRfTKsirytpYA3nwgL96GymKKdFbzSQFCEhLnZraS8np0NVVQHoAHAbhfSx");
+          ourRetrofitClient=retrofit.create(OurRetrofitClient.class);
+        Call<TeamClass> callTeam=ourRetrofitClient.getData(10,"LRRfTKsirytpYA3nwgL96GymKKdFbzSQFCEhLnZraS8np0NVVQHoAHAbhfSx");
 
-
-        callId.enqueue(new Callback<ObjectDataById>() {
+        callTeam.enqueue(new Callback<TeamClass>() {
             @Override
-            public void onResponse(Call<ObjectDataById> call, Response<ObjectDataById> response) {
+            public void onResponse(Call<TeamClass> call, Response<TeamClass> response) {
 
-                if(response.isSuccessful()){
-                    ObjectData objectData=response.body().getData();
+              final   int cid=response.body().getCountry_id();
+                String name=response.body().getName();
 
-                        Log.d("id", String.valueOf(objectData.getId()));
-                        Log.d("name", String.valueOf(objectData.getName()));
-                        Log.d("resource", String.valueOf(objectData.getResource()));
-                        Log.d("updated_at", String.valueOf(objectData.getUpdated_at()));
+                Call<ArrayModelClass> playerCall=ourRetrofitClient.getPlayersData("LRRfTKsirytpYA3nwgL96GymKKdFbzSQFCEhLnZraS8np0NVVQHoAHAbhfSx",cid);
 
-                } else {
-                    Log.d("response","fail");
-                }
+                playerCall.enqueue(new Callback<ArrayModelClass>() {
+                    @Override
+                    public void onResponse(Call<ArrayModelClass> call, Response<ArrayModelClass> response) {
+                        List<ObjectModelClass> list=response.body().getData();
+                        for (ObjectModelClass obj: list){
+                            String dob=obj.getDeteofbirth();
+                            String fullname=obj.getFullname();
+                            String gender=obj.getGender();
+
+                            PositionClass position=obj.getPosition();
+
+                            String posname=position.getName();
+
+                            Log.d("cid :",String.valueOf(cid));
+                            Log.d("dob :",String.valueOf(dob));
+                            Log.d("fullname :",String.valueOf(fullname));
+                            Log.d("gender :",String.valueOf(gender));
+                            Log.d("posname :",String.valueOf(posname));
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<ArrayModelClass> call, Throwable t) {
+
+                    }
+                });
+
             }
 
             @Override
-            public void onFailure(Call<ObjectDataById> call, Throwable t) {
+            public void onFailure(Call<TeamClass> call, Throwable t) {
 
-                Log.d("response","fail");
             }
         });
+
+
+//        callId.enqueue(new Callback<ObjectDataById>() {
+//            @Override
+//            public void onResponse(Call<ObjectDataById> call, Response<ObjectDataById> response) {
+//
+//                if(response.isSuccessful()){
+//                    ObjectData objectData=response.body().getData();
+//
+//                        Log.d("id", String.valueOf(objectData.getId()));
+//                        Log.d("name", String.valueOf(objectData.getName()));
+//                        Log.d("resource", String.valueOf(objectData.getResource()));
+//                        Log.d("updated_at", String.valueOf(objectData.getUpdated_at()));
+//
+//                } else {
+//                    Log.d("response","fail");
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<ObjectDataById> call, Throwable t) {
+//
+//                Log.d("response","fail");
+//            }
+//        });
 
 
 //        call.enqueue(new Callback<OurMainDataClass>() {
